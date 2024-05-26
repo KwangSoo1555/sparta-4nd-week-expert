@@ -1,11 +1,12 @@
 import jwt from 'jsonwebtoken';
 
 const generateAccessToken = (userId) => {
-  return jwt.sign({ userId: userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
 };
 
 const setAccessTokenCookie = (req, res, next) => {
   const token = res.locals.token;
+
   if (token) {
     res.cookie('authorization', token, { httpOnly: true });
     res.locals.token = token;
@@ -23,26 +24,26 @@ const verifyAccessToken = async (req, res, next) => {
   const token = req.headers.authorization;
 
   if (!token) {
-    return res.status(401).json({ error: 'It is not exist information of authorization.' });
+    return res.status(401).json({ error: 'Authorization information is missing.' });
   }
 
   const tokenParts = token.split(' ');
   if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
-    return res.status(401).json({ error: 'This method of authorization is not suported.' });
+    return res.status(401).json({ error: 'Unsupported authorization method.' });
   }
-  // console.log(tokenParts)
 
   const accessToken = tokenParts[1];
 
   try {
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     req.userId = decodedToken.userId;
+
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: 'authorization is expired' });
+      return res.status(401).json({ error: 'Authorization token has expired.' });
     } else {
-      return res.status(401).json({ error: 'authorization is not valueation' });
+      return res.status(401).json({ error: 'Invalid authorization token.' });
     }
   }
 };

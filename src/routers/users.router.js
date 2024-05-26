@@ -69,7 +69,8 @@ router.post(
         return res.status(401).json({ message: 'Password is not matched' });
       }
 
-      // sign token then issued cookie, limited login success.
+      // Generate JWT and set it in a cookie for future authenticated requests.
+      // This ensures that only authenticated requests with valid JWTs are processed successfully.
       const signedToken = generateAccessToken(registeredUser.userId);
       res.locals.token = signedToken;
 
@@ -80,5 +81,29 @@ router.post(
   },
   setAccessTokenCookie
 );
+
+router.get('/profile', verifyAccessToken, async (req, res, next) => {
+  try {
+    const authenticatedUser = await prisma.users.findUnique({
+      where: { userId: req.userId },
+      select: {
+        userId: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!authenticatedUser) {
+      return res.status(404).json({ error: 'Not found user' });
+    }
+
+    res.status(200).json(authenticatedUser);
+  } catch (error) {
+    next(error);
+  }
+});
 
 export { router };
