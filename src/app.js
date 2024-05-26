@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 
 import { connectPrisma } from './utils/prisma.util.js';
-import { router as usersRouter } from '../src/routers/users.js';
+import { router as usersRouter } from '../src/routers/users.router.js';
 
 dotenv.config();
 
@@ -13,7 +13,8 @@ app.set('port', PORT || 3100);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/', [usersRouter]);
+
+app.use('/', usersRouter);
 
 app.use(function (err, req, res, next) {
   console.error(err.stack);
