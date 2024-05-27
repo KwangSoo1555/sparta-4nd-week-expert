@@ -36,6 +36,7 @@ router.post('/post', verifyAccessToken, async (req, res, next) => {
 
 router.get('/get', verifyAccessToken, async (req, res, next) => {
   try {
+    
   } catch (error) {
     next(error);
   }

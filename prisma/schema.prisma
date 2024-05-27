@@ -35,7 +35,7 @@ enum Role {
 }
 
 model Resume {
-  UserId             Int       @unique                         @map("UserId")
+  UserId             Int                                       @map("UserId")
   resumeId           Int       @id  @default(autoincrement())  @map("resumeId")
   title              String                                    @map("title")
   introduce          String    @db.Text                        @map("introduce")
