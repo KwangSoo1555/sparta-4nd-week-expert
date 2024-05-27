@@ -37,7 +37,7 @@ const verifyAccessToken = async (req, res, next) => {
   try {
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     req.userId = decodedToken.userId;
-    
+
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {

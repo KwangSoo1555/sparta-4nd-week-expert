@@ -14,8 +14,7 @@ const saltRounds = 10;
 
 router.post('/signup', async (req, res, next) => {
   try {
-    const signupVal = await signupValidation.validateAsync(req.body);
-    const { name, email, password, passwordCheck } = signupVal;
+    const { name, email, password, passwordCheck } = await signupValidation.validateAsync(req.body);
 
     const isExistUser = await prisma.users.findFirst({
       where: { OR: [{ name }, { email }] },
@@ -52,12 +51,9 @@ router.post('/signup', async (req, res, next) => {
   }
 });
 
-router.post(
-  '/login',
-  async (req, res, next) => {
+router.post('/login', async (req, res, next) => {
     try {
-      const loginVal = await loginValidation.validateAsync(req.body);
-      const { email, password } = loginVal;
+      const { email, password } = await loginValidation.validateAsync(req.body);
 
       const registeredUser = await prisma.users.findFirst({ where: { email } });
       if (!registeredUser) {

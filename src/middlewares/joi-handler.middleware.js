@@ -60,7 +60,7 @@ export const loginValidation = joi.object({
   }),
 });
 
-export const resumePostValidation = joi.object({
+export const resumeCreateValidation = joi.object({
   title: joi.string().min(2).max(30).required().messages({
     'string.base': 'The title must be only type of string.',
     'string.min': 'The title must have at least 2 characters.',
@@ -74,5 +74,18 @@ export const resumePostValidation = joi.object({
     'string.max': 'The introduce can be up to 1000 characters long.',
     'string.empty': 'Be sure to enter your introduce.',
     'any.required': 'Be sure to enter your introduce.',
+  }),
+});
+
+export const resumeUpdateValidation = joi.object({
+  title: joi.string().min(2).max(30).optional().messages({
+    'string.base': 'The title must be only type of string.',
+    'string.min': 'The title must have at least 2 characters.',
+    'string.max': 'The title can be up to 30 characters long.',
+  }),
+  introduce: joi.string().min(5).max(1000).optional().messages({
+    'string.base': 'The introduce must be only type of string.',
+    'string.min': 'The introduce must have at least 150 characters.',
+    'string.max': 'The introduce can be up to 1000 characters long.',
   }),
 });
