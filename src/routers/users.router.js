@@ -1,7 +1,7 @@
 import express from 'express';
-import prisma from '../utils/prisma.util.js';
 import bcrypt from 'bcrypt';
 
+import { prisma } from '../utils/prisma.util.js';
 import { signupValidation, loginValidation } from '../middlewares/joi-handler.middleware.js';
 import {
   generateAccessToken,

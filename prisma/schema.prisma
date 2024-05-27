@@ -20,9 +20,11 @@ model Users {
   password       String                                    @map("password")
   passwordCheck  String                                    @map("passwordCheck")
 
-  role           String    @default("applicant")           @map("role")
+  role           String    @default("APPLICANT")           @map("role")
   createdAt      DateTime  @default(now())                 @map("createdAt")
   updatedAt      DateTime  @updatedAt                      @map("updatedAt")
+
+  Resume Resume[]
 
   @@map("Users")
 }
@@ -30,4 +32,28 @@ model Users {
 enum Role { 
   APPLICANT 
   RECRUITER 
+}
+
+model Resume {
+  UserId             Int       @unique                         @map("UserId")
+  resumeId           Int       @id  @default(autoincrement())  @map("resumeId")
+  title              String                                    @map("title")
+  introduce          String    @db.Text                        @map("introduce")
+
+  applicationStatus  String    @default("APPLY")               @map("applicant")
+  createdAt          DateTime  @default(now())                 @map("createdAt")
+  updatedAt          DateTime  @updatedAt                      @map("updatedAt")
+
+  Resume Users @relation(fields: [UserId], references: [userId], onDelete: Cascade)
+
+  @@map("Resume")
+}
+
+enum applicationStatus {
+  APPLY
+  DROP
+  PASS
+  INTERVIEW1
+  INTERVIEW2
+  FINAL_PASS
 }

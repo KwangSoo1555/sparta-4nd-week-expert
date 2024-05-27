@@ -59,3 +59,20 @@ export const loginValidation = joi.object({
     'any.required': 'Be sure to enter your password.',
   }),
 });
+
+export const resumePostValidation = joi.object({
+  title: joi.string().min(2).max(30).required().messages({
+    'string.base': 'The title must be only type of string.',
+    'string.min': 'The title must have at least 2 characters.',
+    'string.max': 'The title can be up to 30 characters long.',
+    'string.empty': 'Be sure to enter your title.',
+    'any.required': 'Be sure to enter your title.',
+  }),
+  introduce: joi.string().min(5).max(1000).required().messages({
+    'string.base': 'The introduce must be only type of string.',
+    'string.min': 'The introduce must have at least 150 characters.',
+    'string.max': 'The introduce can be up to 1000 characters long.',
+    'string.empty': 'Be sure to enter your introduce.',
+    'any.required': 'Be sure to enter your introduce.',
+  }),
+});
