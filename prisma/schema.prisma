@@ -24,7 +24,7 @@ model Users {
   createdAt      DateTime  @default(now())                 @map("createdAt")
   updatedAt      DateTime  @updatedAt                      @map("updatedAt")
 
-  Resume Resume[]
+  userIdToResume Resume[]
 
   @@map("Users")
 }
@@ -44,7 +44,7 @@ model Resume {
   createdAt          DateTime  @default(now())                 @map("createdAt")
   updatedAt          DateTime  @updatedAt                      @map("updatedAt")
 
-  Resume Users @relation(fields: [UserId], references: [userId], onDelete: Cascade)
+  Users Users @relation(fields: [UserId], references: [userId], onDelete: Cascade)
 
   @@map("Resume")
 }
