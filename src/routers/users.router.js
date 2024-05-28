@@ -3,7 +3,9 @@ import bcrypt from 'bcrypt';
 
 import { prisma } from '../utils/prisma.util.js';
 import { signupValidation, loginValidation } from '../middlewares/joi-handler.middleware.js';
-import { generateAccessToken, verifyAccessToken } from '../middlewares/require-access-token.middleware.js';
+import { generateAccessToken } from './auth.router.js';
+import { generateRefreshToken } from './auth.router.js';
+import { verifyAccessToken } from '../middlewares/require-access-token.middleware.js';
 
 const router = express.Router();
 const saltRounds = 10;
@@ -20,7 +22,7 @@ router.post('/signup', async (req, res, next) => {
     }
 
     if (!passwordCheck) {
-      return res.status(400).json({ message: "You Should have to enter the passwordCheck." })
+      return res.status(400).json({ message: 'You Should have to enter the passwordCheck.' });
     }
 
     if (password !== passwordCheck) {
@@ -33,8 +35,8 @@ router.post('/signup', async (req, res, next) => {
       data: {
         name,
         email,
-        password: hashedPW
-      }
+        password: hashedPW,
+      },
     });
 
     return res.status(201).json({
@@ -65,10 +67,30 @@ router.post('/login', async (req, res, next) => {
     }
 
     // Generate JWT and return it in the response.
-    const signedToken = generateAccessToken(registeredUser.userId);
+    const signedAccessToken = generateAccessToken(registeredUser.userId);
+    const signedRefreshToken = generateRefreshToken(registeredUser.userId);
 
-    return res.status(200).json({ accessToken: signedToken });
+    const hashedSignedRefreshToken = await bcrypt.hash(signedRefreshToken, saltRounds);
 
+    // user can have refresh token only one.
+    await prisma.refreshToken.deleteMany({
+      where: { UserId: registeredUser.userId },
+    });
+
+    // RefreshToken is store to schema model RefreshToken.
+    await prisma.refreshToken.create({
+      data: {
+        UserId: registeredUser.userId,
+        token: hashedSignedRefreshToken,
+        ip: req.ip,
+        userAgent: req.headers['user-agent'],
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    return res
+      .status(200)
+      .json({ accessToken: signedAccessToken, refreshToken: signedRefreshToken });
   } catch (error) {
     next(error);
   }

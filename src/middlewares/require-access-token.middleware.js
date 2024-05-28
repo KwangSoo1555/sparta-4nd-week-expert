@@ -1,28 +1,25 @@
 import jwt from 'jsonwebtoken';
-
-const generateAccessToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '12h' });
-};
+import { prisma } from '../utils/prisma.util.js';
 
 const verifyAccessToken = async (req, res, next) => {
-  const token = req.headers.authorization;
+  const accessToken = req.headers.authorization;
 
-  if (!token) {
+  if (!accessToken) {
     return res.status(401).json({ error: 'Authorization information is missing.' });
   }
 
-  const tokenParts = token.split(' ');
+  const tokenParts = accessToken.split(' ');
   if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
     return res.status(401).json({ error: 'Unsupported authorization method.' });
   }
 
-  const accessToken = tokenParts[1];
-
   try {
-    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+    const decodedToken = jwt.verify(tokenParts[1], process.env.ACCESS_TOKEN_SECRET_KEY);
     req.userId = decodedToken.userId;
 
-    const user = await prisma.users.findUnique({ where: { userId: req.userId } });
+    const user = await prisma.users.findUnique({
+      where: { userId: req.userId },
+    });
     if (!user) {
       return res.status(401).json({ error: 'Does not exist ' });
     }
@@ -39,4 +36,4 @@ const verifyAccessToken = async (req, res, next) => {
   }
 };
 
-export { generateAccessToken, verifyAccessToken };
+export { verifyAccessToken };

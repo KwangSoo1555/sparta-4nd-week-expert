@@ -20,7 +20,7 @@ export const signupValidation = joi.object({
       'string.max': 'This email can be up to 30 characters long.',
       'string.empty': 'Be sure to enter your email.',
       'any.required': 'Be sure to enter your email.',
-      'string.pattern.base': 'This email is not vaild.', 
+      'string.pattern.base': 'This email is not vaild.',
     }),
   password: joi.string().min(6).max(30).required().messages({
     'string.base': 'This password must be only type of string.',
@@ -51,7 +51,7 @@ export const loginValidation = joi.object({
       'string.max': 'This email can be up to 30 characters long.',
       'string.empty': 'Be sure to enter your email.',
       'any.required': 'Be sure to enter your email.',
-      'string.pattern.base': 'This email is not vaild.', 
+      'string.pattern.base': 'This email is not vaild.',
     }),
   password: joi.string().min(6).max(30).required().messages({
     'string.base': 'This password must be only type of string.',
