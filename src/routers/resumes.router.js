@@ -22,6 +22,7 @@ router.post('/post', verifyAccessToken, async (req, res, next) => {
 
     const resumeCreate = await prisma.resume.create({
       data: {
+        UserId,
         title,
         introduce,
       },
@@ -37,6 +38,9 @@ router.post('/post', verifyAccessToken, async (req, res, next) => {
       updatedAt: resumeCreate.updatedAt,
     });
   } catch (error) {
+    if (error.isJoi) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
     next(error);
   }
 });
@@ -50,6 +54,8 @@ router.get('/', verifyAccessToken, async (req, res, next) => {
       return res.status(400).json({ error: 'User ID not provided' });
     }
 
+    const sort = req.query.sort && req.query.sort.toLowerCase() === 'asc' ? 'asc' : 'desc';
+
     const resumeRead = await prisma.resume.findMany({
       select: {
         resumeId: true,
@@ -61,10 +67,7 @@ router.get('/', verifyAccessToken, async (req, res, next) => {
         Users: { select: { name: true } },
       },
       where: { UserId: UserId },
-      orderBy: { createdAt: 'asc' },
-      // if () {
-
-      // }
+      orderBy: { createdAt: sort },
     });
 
     if (resumeRead.length === 0) {
