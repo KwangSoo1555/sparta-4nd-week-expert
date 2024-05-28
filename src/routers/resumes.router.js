@@ -81,7 +81,7 @@ router.get('/', verifyAccessToken, async (req, res, next) => {
 router.get('/:resumeId', verifyAccessToken, async (req, res, next) => {
   try {
     const UserId = req.userId;
-    const resumeId = req.params.resumeId;
+    const resumeId = Number(req.params.resumeId);
 
     const resumeReadDetail = await prisma.resume.findFirst({
       where: { UserId: UserId, resumeId: +resumeId },
@@ -110,7 +110,7 @@ router.get('/:resumeId', verifyAccessToken, async (req, res, next) => {
 router.patch('/update/:resumeId', verifyAccessToken, async (req, res, next) => {
   try {
     const UserId = req.userId;
-    const resumeId = req.params.resumeId;
+    const resumeId = Number(req.params.resumeId);
 
     const { title, introduce } = await resumeUpdateValidation.validateAsync(req.body);
 
@@ -119,7 +119,7 @@ router.patch('/update/:resumeId', verifyAccessToken, async (req, res, next) => {
     }
 
     const getResumeDate = await prisma.resume.findFirst({
-      where: { UserId: UserId, resumeId: +resumeId },
+      where: { UserId: UserId, resumeId: resumeId },
     });
 
     if (!getResumeDate) {
@@ -127,7 +127,7 @@ router.patch('/update/:resumeId', verifyAccessToken, async (req, res, next) => {
     }
 
     const resumeUpdate = await prisma.resume.update({
-      where: { UserId: UserId, resumeId: +resumeId },
+      where: { UserId: UserId, resumeId: resumeId },
       data: {
         title: title || getResumeDate.title,
         introduce: introduce || getResumeDate.introduce,
@@ -144,6 +144,29 @@ router.patch('/update/:resumeId', verifyAccessToken, async (req, res, next) => {
     });
 
     return res.status(200).json({ resumeUpdate });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/delete/:resumeId', async (req, res, next) => {
+  try {
+    const UserId = req.userId;
+    const resumeId = Number(req.params.resumeId);
+
+    const getResumeDate = await prisma.resume.findFirst({
+      where: { UserId: UserId, resumeId: resumeId },
+    });
+
+    if (!getResumeDate) {
+      return res.status(404).json({ message: 'Resume is not exist.' });
+    }
+
+    const resumeDelete = await prisma.resume.delete({
+      where: { resumeId: resumeId },
+    });
+
+    return res.status(200).json({ resumeDelete });
   } catch (error) {
     next(error);
   }

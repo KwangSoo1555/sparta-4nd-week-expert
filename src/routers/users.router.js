@@ -51,7 +51,9 @@ router.post('/signup', async (req, res, next) => {
   }
 });
 
-router.post('/login', async (req, res, next) => {
+router.post(
+  '/login',
+  async (req, res, next) => {
     try {
       const { email, password } = await loginValidation.validateAsync(req.body);
 
