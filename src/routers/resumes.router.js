@@ -2,10 +2,7 @@ import express from 'express';
 
 import { prisma } from '../utils/prisma.util.js';
 import { verifyAccessToken } from '../middlewares/require-access-token.middleware.js';
-import {
-  resumeCreateValidation,
-  resumeUpdateValidation,
-} from '../middlewares/joi-handler.middleware.js';
+import { resumeCreateValidation, resumeUpdateValidation } from '../middlewares/joi-handler.middleware.js';
 
 const router = express.Router();
 
@@ -152,6 +149,7 @@ router.patch('/update/:resumeId', verifyAccessToken, async (req, res, next) => {
   }
 });
 
+// delete resume
 router.delete('/delete/:resumeId', async (req, res, next) => {
   try {
     const UserId = req.userId;

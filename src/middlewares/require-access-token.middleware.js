@@ -1,23 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 const generateAccessToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
-};
-
-const setAccessTokenCookie = (req, res, next) => {
-  const token = res.locals.token;
-
-  if (token) {
-    res.cookie('authorization', token, { httpOnly: true });
-    res.locals.token = token;
-
-    return res.status(200).json({
-      message: 'Login successful.',
-      accessToken: token,
-    });
-  } else {
-    return res.status(500).json({ message: 'Token generation failed.' });
-  }
+  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '12h' });
 };
 
 const verifyAccessToken = async (req, res, next) => {
@@ -38,6 +22,13 @@ const verifyAccessToken = async (req, res, next) => {
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     req.userId = decodedToken.userId;
 
+    const user = await prisma.users.findUnique({ where: { userId: req.userId } });
+    if (!user) {
+      return res.status(401).json({ error: 'Does not exist ' });
+    }
+
+    req.user = user;
+
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
@@ -48,4 +39,4 @@ const verifyAccessToken = async (req, res, next) => {
   }
 };
 
-export { generateAccessToken, setAccessTokenCookie, verifyAccessToken };
+export { generateAccessToken, verifyAccessToken };

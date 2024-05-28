@@ -3,11 +3,7 @@ import bcrypt from 'bcrypt';
 
 import { prisma } from '../utils/prisma.util.js';
 import { signupValidation, loginValidation } from '../middlewares/joi-handler.middleware.js';
-import {
-  generateAccessToken,
-  setAccessTokenCookie,
-  verifyAccessToken,
-} from '../middlewares/require-access-token.middleware.js';
+import { generateAccessToken, verifyAccessToken } from '../middlewares/require-access-token.middleware.js';
 
 const router = express.Router();
 const saltRounds = 10;
@@ -23,6 +19,10 @@ router.post('/signup', async (req, res, next) => {
       return res.status(409).json({ message: 'This email or name are already exist.' });
     }
 
+    if (!passwordCheck) {
+      return res.status(400).json({ message: "You Should have to enter the passwordCheck." })
+    }
+
     if (password !== passwordCheck) {
       return res.status(400).json({ message: 'Passwords do not match.' });
     }
@@ -33,9 +33,8 @@ router.post('/signup', async (req, res, next) => {
       data: {
         name,
         email,
-        password: hashedPW,
-        passwordCheck: hashedPW,
-      },
+        password: hashedPW
+      }
     });
 
     return res.status(201).json({
@@ -51,34 +50,29 @@ router.post('/signup', async (req, res, next) => {
   }
 });
 
-router.post(
-  '/login',
-  async (req, res, next) => {
-    try {
-      const { email, password } = await loginValidation.validateAsync(req.body);
+router.post('/login', async (req, res, next) => {
+  try {
+    const { email, password } = await loginValidation.validateAsync(req.body);
 
-      const registeredUser = await prisma.users.findFirst({ where: { email } });
-      if (!registeredUser) {
-        return res.status(401).json({ message: 'This email is not exist' });
-      }
-
-      const matchPW = await bcrypt.compare(password, registeredUser.password);
-      if (!matchPW) {
-        return res.status(401).json({ message: 'Password is not matched' });
-      }
-
-      // Generate JWT and set it in a cookie for future authenticated requests.
-      // This ensures that only authenticated requests with valid JWTs are processed successfully.
-      const signedToken = generateAccessToken(registeredUser.userId);
-      res.locals.token = signedToken;
-
-      next();
-    } catch (error) {
-      next(error);
+    const registeredUser = await prisma.users.findFirst({ where: { email } });
+    if (!registeredUser) {
+      return res.status(401).json({ message: 'This email does not exist.' });
     }
-  },
-  setAccessTokenCookie
-);
+
+    const matchPW = await bcrypt.compare(password, registeredUser.password);
+    if (!matchPW) {
+      return res.status(401).json({ message: 'Password does not match.' });
+    }
+
+    // Generate JWT and return it in the response.
+    const signedToken = generateAccessToken(registeredUser.userId);
+
+    return res.status(200).json({ accessToken: signedToken });
+
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.get('/profile', verifyAccessToken, async (req, res, next) => {
   try {
