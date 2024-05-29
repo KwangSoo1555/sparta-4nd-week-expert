@@ -6,11 +6,11 @@ import { verifyRefreshToken } from '../middlewares/require-refresh-token.middlew
 const router = express.Router();
 
 const generateAccessToken = (userId) => {
-  return jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET_KEY, { expiresIn: '20s' });
+  return jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET_KEY, { expiresIn: '12h' });
 };
 
 const generateRefreshToken = (userId) => {
-  return jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET_KEY, { expiresIn: '3m' });
+  return jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET_KEY, { expiresIn: '7d' });
 };
 
 // When accessToken expires and refreshToken is vaild, accessToken can be reissue.
@@ -19,7 +19,7 @@ router.post('/refreshToken', verifyRefreshToken, async (req, res, next) => {
     const userId = req.userId;
 
     const newAccessToken = generateAccessToken(userId);
-
+console.log(newAccessToken)
     return res.status(200).json({ accessToken: newAccessToken });
   } catch (error) {
     if (error.name === 'TokenExpiredError') {

@@ -1,10 +1,6 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { prisma } from '../utils/prisma.util.js';
-import dotenv from 'dotenv';
-
-// 환경 변수 로드
-dotenv.config();
 
 const verifyRefreshToken = async (req, res, next) => {
   const refreshToken = req.headers['refresh-token'];
@@ -39,7 +35,6 @@ const verifyRefreshToken = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error('Error verifying refresh token:', error);
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({ error: 'Refresh token has expired.' });
     } else {

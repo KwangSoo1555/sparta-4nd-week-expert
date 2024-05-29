@@ -20,6 +20,7 @@ const verifyAccessToken = async (req, res, next) => {
     const user = await prisma.users.findUnique({
       where: { userId: req.userId },
     });
+    
     if (!user) {
       return res.status(401).json({ error: 'Does not exist ' });
     }

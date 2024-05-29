@@ -7,7 +7,7 @@ export const prisma = new PrismaClient({
   errorFormat: 'pretty',
 });
 
-export const connectPrisma = async () => {
+const connectPrisma = async () => {
   try {
     await prisma.$connect();
     console.log('Success DB connection.');
@@ -16,3 +16,5 @@ export const connectPrisma = async () => {
     throw error;
   }
 };
+
+export {connectPrisma, PrismaClient}
